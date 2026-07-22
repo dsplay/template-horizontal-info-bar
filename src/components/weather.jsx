@@ -36,11 +36,7 @@ function WeatherContent() {
       (async () => {
         try {
           console.log('[weather] fetching from the API');
-          const response = await axios.get(url, {
-            headers: {
-              origin: 'https://dsplay.tv',
-            }
-          });
+          const response = await axios.get(url);
           const json = response.data;
 
           console.log('[weather] response: ', response.data);

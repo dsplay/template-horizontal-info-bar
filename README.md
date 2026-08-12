@@ -1,91 +1,92 @@
+![DSPLAY - Digital Signage](https://developers.dsplay.tv/assets/images/dsplay-logo.png)
+
 # DSPLAY - Horizontal Information Bar
 
-This is a HTML-based template for [DSPLAY](https://dsplay.tv).
+A [React](https://reactjs.org/) [HTML-based template](https://developers.dsplay.tv/docs/html-templates) for the [DSPLAY - Digital Signage](https://dsplay.tv/) platform — a horizontal bar with up to five independent, optional widgets: clock, weather, currency quotes, RSS news, and a sponsor logo.
 
-## Basics
+> Built with [Vite](https://vitejs.dev/), requires Node.js 22.22.2+, 24.15.0+, or 26+ (see `.nvmrc`).
 
-> This project was bootstrapped with [DSPLAY - React Template Boilerplate](https://github.com/dsplay/template-boilerplate-react).
+## Features
 
-## Usage
+- **Clock** — local time, formatted for the configured locale.
+- **Weather** — current temperature and condition icon for a given latitude/longitude.
+- **Currency quotes** — converts two source currencies into a target currency.
+- **News** — one random headline from an RSS feed, refreshed periodically.
+- **Sponsor** — a single logo image.
 
-This template has 5 widgets:
-
-- Clock (local time)
-- Weather (current weather for the provided lat and lon)
-- Currency (currency conversion)
-- News (RSS feed)
-- Logo (A single image)
-
-All widget are optional and will depend on the provided template variables.
+Every widget is independently optional — it only renders once its required variable(s) are set. `widgets_sequence_query` controls which widgets appear and in what order.
 
 ![Screenshot](assets/screenshot-01.png)
 
-### Configuration
+## Template variables
 
-This template has many configuration variables as the following table shows:
+| Key                     | Type    | Description                                                                                     |
+|--------------------------|---------|---------------------------------------------------------------------------------------------------|
+| `clock`                 | boolean | Enables/disables the Clock widget. Defaults to `true`.                                          |
+| `latitude`              | string  | Latitude of the place to get weather for, e.g. `41.1621376`. Weather widget is hidden if unset.  |
+| `longitude`             | string  | Longitude of the place to get weather for, e.g. `-8.656973`. Weather widget is hidden if unset.  |
+| `source_currency_1`     | string  | First source currency to convert, e.g. `BRL`, `USD`, `EUR`.                                     |
+| `source_currency_2`     | string  | Second source currency to convert.                                                               |
+| `target_currency`       | string  | Target currency both source currencies are converted to.                                        |
+| `rss_url`               | string  | RSS feed URL. Leave empty to hide the News widget.                                               |
+| `rss_logo_box_color`    | color   | Background color behind the feed's channel image.                                               |
+| `sponsor_logo`          | image   | Logo shown in the Sponsor widget. Leave empty to hide it.                                        |
+| `sponsor_logo_box_color`| color   | Background color behind the sponsor logo.                                                        |
+| `widgets_sequence_query`| string  | Order and selection of widgets — see [Widget sequence syntax](#widget-sequence-syntax) below.    |
+| `bg_color`              | color   | Background color of the whole bar. Defaults to `white`.                                         |
+| `bg_image`              | image   | Background image of the whole bar.                                                              |
+| `text_color`            | color   | Text color of the whole bar. Defaults to `black`.                                               |
+| `currency_box_color`    | color   | Background color behind each currency value.                                                    |
+| `currency_text_color`   | color   | Text color of each currency value.                                                               |
 
-| Variable                | Widget   | Type    | Description                                                                                                                                                                       |
-|-------------------------|----------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `clock`                 | Clock    | boolean | enables/disables the Clock widget                                                                                                                                                 |
-| `latitude`              | Weather  | string  | Latitude of the place to get weather (ex: 41.1621376)                                                                                                                             |
-| `longitude`             | Weather  | string  | Longitude of the place to get weather (ex: -8.656973)                                                                                                                             |
-| `source_currency_1`     | Currency | string  | First source currency to be converted. Possible values are: BRL,USD,EUR,GPB,CUP,AUD,CVE,CNY,INR,KRW,COP,IDR,NGN,RON,ZAR,VEF,CAD,CLP,JPY,CHF,AFN,EGP,RUB,UYU,BTC                   |
-| `source_currency_2`     | Currency | string  | Second source currency to be converted. Possible values are: BRL,USD,EUR,GPB,CUP,AUD,CVE,CNY,INR,KRW,COP,IDR,NGN,RON,ZAR,VEF,CAD,CLP,JPY,CHF,AFN,EGP,RUB,UYU,BTC                  |
-| `target_currency`       | Currency | string  | Target currency. Possible values are: BRL,USD,EUR,GPB,CUP,AUD,CVE,CNY,INR,KRW,COP,IDR,NGN,RON,ZAR,VEF,CAD,CLP,JPY,CHF,AFN,EGP,RUB,UYU,BTC                                         |
-| `rss_url`               | RSS      | string  | RSS feed URL. Leave it empty to hide the News widget                                                                                                                              |
-| `sponsor_logo`          | Logo     | image   | Logo to be shown in the bar. Leave it empty to hide the Logo widget.                                                                                                              |
-| `widgets_sequence_query`| All      | string  | Put each initial character to order widgets, example: c, q, w, s, n
-| `bg_color`              | All      | color   |                                                                                                                                                                                   |
-| `bg_image`              | All      | image   |                                                                                                                                                                                   |
-| `text_color`            | All      | color   |                                                                                                                                                                                   |
-| `rss_logo_box_color`    | RSS      | color   |                                                                                                                                                                                   |
-| `currency_box_color`    | Currency | color   |                                                                                                                                                                                   |
-| `currency_text_color`   | Currency | color   |                                                                                                                                                                                   |
+> Remember to also register these as Template Vars (same name and type) when configuring this template in the DSPLAY CMS.
 
-## Order widgets sequence
+### Widget sequence syntax
 
-Configuration variable widgets_sequence_query is used to order widgets sequence, is string type and use caracteres to represent widgets 
+`widgets_sequence_query` is a comma-separated list of single-character widget codes, controlling both which widgets show and their order:
 
+| Character | Widget          |
+|-----------|-----------------|
+| `c`       | Clock           |
+| `w`       | Weather         |
+| `q`       | Currency quotes |
+| `n`       | News            |
+| `s`       | Sponsor         |
 
+E.g. `"s,c,w,n,q"`. Defaults to `"s,w,q,n,c"`. Unknown characters are ignored; any widget code left out still appears, appended after the ones you listed.
 
+## Local development
 
-
-
-
-| Characters | Widget            
-|-----------|:-------------:
-| _c_  | Clock      
-| _w_  | Weather      
-| _q_  | Currency      
-| _n_  | News      
-| _s_  | Logo      
-
-and use comma to separete, example: "_s, c, w, n, q_"
-
-
-## Customizing
-
-### Getting started
-
-```
-git clone https://github.com/dsplay/template-horizontal-info-bar.git my-awesome-template
-cd my-awesome-template
-rm -rf .git
-npm i
+```sh
+npm install
 npm start
 ```
 
+`public/dsplay-data.js` defines `dsplay_config`/`dsplay_media`/`dsplay_template` mock globals used only when the template isn't running inside the actual DSPLAY app. Edit it to try out different values — the DSPLAY Player App replaces it with real content at runtime.
+
 ## Packing (release build)
 
-To create a release build of the template, ready to be uploaded to DSPLAY, just run:
-
-```
+```sh
 npm run zip
 ```
 
-It will generate a `template.zip` file ready to be deployed to [DSPLAY Web Manager](https://manager.dsplay.tv/template/create)
+This builds the template with Vite, which also generates `template-variables.json` + `template-example-data.json` (via [@dsplay/template-manifest](https://www.npmjs.com/package/@dsplay/template-manifest)'s Vite plugin) — the DSPLAY CMS reads these two files to auto-detect this template's variables and seed default preview values. It then generates `template.zip`, ready to be deployed to the [DSPLAY Web Manager](https://manager.dsplay.tv/template/create).
+
+## Maintaining dependencies
+
+Regular npm dependencies, not vendored files:
+
+```sh
+npm outdated
+npm update
+```
+
+For a version outside the declared range (typically a major bump), apply it deliberately and verify `npm start`, `npm run build`, and `npm test` still work before committing.
+
+### Commit conventions
+
+See [AGENTS.md](AGENTS.md).
 
 ## More
 
-The see more about DSPLAY HTML Templates, visit: https://developers.dsplay.tv/docs/html-templates
-```
+To see more about DSPLAY HTML Templates, visit: https://developers.dsplay.tv/docs/html-templates

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { tbval, config } from '@dsplay/template-utils';
 
 const showClock = tbval('clock', true);
@@ -33,7 +33,6 @@ function ClockContent() {
 }
 
 function Clock() {
-
   if (!showClock) return null;
 
   return <ClockContent />;

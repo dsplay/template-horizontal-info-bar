@@ -11,7 +11,29 @@ const logoBoxColor = tval('rss_logo_box_color');
 const parser = new Parser();
 const KEY_VERSION = 'news_version';
 const VERSION = '1.0';
-const CORS_PROXY = 'https://api.allorigins.win/get';
+
+// Free CORS proxies are individually unreliable (rate limits, outages, plan
+// restrictions) - try each in turn instead of depending on a single one.
+const CORS_PROXIES = [
+  (feedUrl) => axios.get('https://api.allorigins.win/get', { params: { url: feedUrl } }).then((res) => res.data.contents),
+  (feedUrl) => axios.get('https://api.codetabs.com/v1/proxy', { params: { quest: feedUrl } }).then((res) => res.data),
+  (feedUrl) => axios.get('https://corsproxy.io/', { params: { url: feedUrl } }).then((res) => res.data),
+];
+
+async function fetchFeedXml(feedUrl) {
+  let lastError;
+
+  for (const tryProxy of CORS_PROXIES) {
+    try {
+      // eslint-disable-next-line no-await-in-loop -- fallbacks must be tried sequentially, not in parallel
+      return await tryProxy(feedUrl);
+    } catch (e) {
+      lastError = e;
+    }
+  }
+
+  throw lastError;
+}
 
 const sizeMap = {
   20: 3,
@@ -52,12 +74,8 @@ function NewsContent() {
         (async () => {
           try {
             logger.log('[news] fetching from the API');
-            const response = await axios.get(CORS_PROXY, {
-              params: {
-                url,
-              },
-            });
-            const feed = await parser.parseString(response.data.contents);
+            const xml = await fetchFeedXml(url);
+            const feed = await parser.parseString(xml);
 
             setResult(feed);
 

@@ -1,4 +1,5 @@
 import { tval } from '@dsplay/template-utils';
+import './style.sass';
 
 const logo = tval('sponsor_logo');
 

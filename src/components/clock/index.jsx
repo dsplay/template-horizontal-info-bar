@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { tbval, config } from '@dsplay/template-utils';
+import './style.sass';
 
 const showClock = tbval('clock', true);
 const { locale = 'en_US' } = config || {};

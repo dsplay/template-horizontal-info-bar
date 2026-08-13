@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { tval, config } from '@dsplay/template-utils';
 import logger from '../../utils/logger';
+import './style.sass';
 
 const { locale } = config;
 const KEY_VERSION = 'currency_version';
@@ -113,11 +114,11 @@ function QuotesContent() {
 
   return (
     <div className="block quotes">
-      <div className="block vertsical">
+      <div className="block vertical">
         <div className="id">{from1}</div>
         <div className="value" style={currencyValueBoxStyle}>{formatMoney(result[pair1], 2, separators[0], separators[1])}</div>
       </div>
-      <div className="block vertsical">
+      <div className="block vertical">
         <div className="id">{from2}</div>
         <div className="value" style={currencyValueBoxStyle}>{formatMoney(result[pair2], 2, separators[0], separators[1])}</div>
       </div>

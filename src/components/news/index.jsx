@@ -4,6 +4,7 @@ import axios from 'axios';
 import { tval } from '@dsplay/template-utils';
 import rssLogo from '../../assets/image/rss.png';
 import logger from '../../utils/logger';
+import './style.sass';
 
 const url = tval('rss_url');
 const logoBoxColor = tval('rss_logo_box_color');

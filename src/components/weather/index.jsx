@@ -3,6 +3,7 @@ import axios from 'axios';
 import moment from 'moment';
 import { tval } from '@dsplay/template-utils';
 import logger from '../../utils/logger';
+import './style.sass';
 
 const lat = tval('latitude');
 const lon = tval('longitude');

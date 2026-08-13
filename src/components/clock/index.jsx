@@ -1,13 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
-import { tbval, config } from '@dsplay/template-utils';
+import { useTemplateBoolVal, useConfig } from '@dsplay/react-template-utils';
 import './style.sass';
-
-const showClock = tbval('clock', true);
-const { locale = 'en_US' } = config || {};
-const [language] = locale.split('_');
 
 function ClockContent() {
   const [now, setNow] = useState(new Date());
+  const { locale = 'en_US' } = useConfig() || {};
+  const [language] = locale.split('_');
 
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000);
@@ -34,6 +32,8 @@ function ClockContent() {
 }
 
 function Clock() {
+  const showClock = useTemplateBoolVal('clock', true);
+
   if (!showClock) return null;
 
   return <ClockContent />;

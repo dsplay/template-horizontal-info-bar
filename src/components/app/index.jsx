@@ -1,20 +1,10 @@
-import { tval } from '@dsplay/template-utils';
+import { useTemplateVal } from '@dsplay/react-template-utils';
 import Clock from '../clock';
 import Quotes from '../quotes';
 import News from '../news';
 import Weather from '../weather';
 import Sponsor from '../sponsor';
 import './style.sass';
-
-const backgroundColor = tval('bg_color', 'white');
-const backgroundImage = tval('bg_image') ? `url('${tval('bg_image')}')` : undefined;
-const color = tval('text_color', 'black');
-
-const style = {
-  backgroundColor,
-  backgroundImage,
-  color,
-};
 
 // c - clock
 // w - weather
@@ -31,7 +21,6 @@ const mapWidgets = {
 };
 
 const defaultSequenceWidgets = ['s', 'w', 'q', 'n', 'c'];
-const widgetsSequenceQuery = tval('widgets_sequence_query', defaultSequenceWidgets.join(','));
 
 const filterWidgetsSequence = (sequence) => {
   const widgetsSequence = [];
@@ -52,6 +41,17 @@ const filterWidgetsSequence = (sequence) => {
 };
 
 function App() {
+  const backgroundColor = useTemplateVal('bg_color', 'white');
+  const bgImage = useTemplateVal('bg_image');
+  const color = useTemplateVal('text_color', 'black');
+  const widgetsSequenceQuery = useTemplateVal('widgets_sequence_query', defaultSequenceWidgets.join(','));
+
+  const style = {
+    backgroundColor,
+    backgroundImage: bgImage ? `url('${bgImage}')` : undefined,
+    color,
+  };
+
   const widgetsSequence = widgetsSequenceQuery
     ? filterWidgetsSequence([...widgetsSequenceQuery.toLowerCase()])
     : defaultSequenceWidgets;

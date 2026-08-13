@@ -1,15 +1,16 @@
-import { tval } from '@dsplay/template-utils';
+import { useTemplateVal } from '@dsplay/react-template-utils';
 import './style.sass';
 
-const logo = tval('sponsor_logo');
-
-const style = {
-  backgroundImage: `url("${logo}")`,
-  backgroundColor: tval('sponsor_logo_box_color'),
-};
-
 function Sponsor() {
+  const logo = useTemplateVal('sponsor_logo');
+  const logoBoxColor = useTemplateVal('sponsor_logo_box_color');
+
   if (!logo) return null;
+
+  const style = {
+    backgroundImage: `url("${logo}")`,
+    backgroundColor: logoBoxColor,
+  };
 
   return (
     <div className="block sponsor">

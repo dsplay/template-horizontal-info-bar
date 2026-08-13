@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import { tval, config } from '@dsplay/template-utils';
+import { useTemplateVal, useConfig } from '@dsplay/react-template-utils';
 import logger from '../../utils/logger';
 import './style.sass';
 
-const { locale } = config;
 const KEY_VERSION = 'currency_version';
 const VERSION = '1.4';
 
@@ -30,17 +29,7 @@ function getNumberSeparator(loc) {
   return ['.', ','];
 }
 
-const separators = getNumberSeparator(locale);
-
-const from1 = tval('source_currency_1');
-const from2 = tval('source_currency_2');
-const targetCurrency = tval('target_currency');
-
-const pair1 = `${from1}_${targetCurrency}`;
-const pair2 = `${from2}_${targetCurrency}`;
-const storageKey = `quotes_${pair1}_${pair2}`;
-
-async function fetchAndConvertFreeCurrencyApi() {
+async function fetchAndConvertFreeCurrencyApi(from1, from2, targetCurrency) {
   // https://github.com/fawazahmed0/currency-api
   const upperPair1 = `${from1}_${targetCurrency}`.toUpperCase();
   const upperPair2 = `${from2}_${targetCurrency}`.toUpperCase();
@@ -54,7 +43,16 @@ async function fetchAndConvertFreeCurrencyApi() {
   };
 }
 
-function QuotesContent() {
+function QuotesContent({ from1, from2, targetCurrency }) {
+  const { locale } = useConfig();
+  const currencyBoxColor = useTemplateVal('currency_box_color', 'black');
+  const currencyTextColor = useTemplateVal('currency_text_color', 'white');
+
+  const separators = useMemo(() => getNumberSeparator(locale), [locale]);
+  const pair1 = useMemo(() => `${from1}_${targetCurrency}`, [from1, targetCurrency]);
+  const pair2 = useMemo(() => `${from2}_${targetCurrency}`, [from2, targetCurrency]);
+  const storageKey = useMemo(() => `quotes_${pair1}_${pair2}`, [pair1, pair2]);
+
   const [result, setResult] = useState({});
   const [error, setError] = useState();
 
@@ -83,7 +81,7 @@ function QuotesContent() {
       (async () => {
         try {
           logger.log('[quotes] fetching from the API');
-          const value = await fetchAndConvertFreeCurrencyApi();
+          const value = await fetchAndConvertFreeCurrencyApi(from1, from2, targetCurrency);
 
           setResult(value);
           localStorage.setItem(storageKey, JSON.stringify({
@@ -101,15 +99,15 @@ function QuotesContent() {
       logger.log('[quotes] using value from localStorage');
       setResult(quotes.value);
     }
-  }, [counter]);
+  }, [counter, storageKey, from1, from2, targetCurrency]);
 
   if (error || !result[pair1]) {
     return null;
   }
 
   const currencyValueBoxStyle = {
-    backgroundColor: tval('currency_box_color', 'black'),
-    color: tval('currency_text_color', 'white'),
+    backgroundColor: currencyBoxColor,
+    color: currencyTextColor,
   };
 
   return (
@@ -127,7 +125,11 @@ function QuotesContent() {
 }
 
 function Quotes() {
-  return <QuotesContent />;
+  const from1 = useTemplateVal('source_currency_1');
+  const from2 = useTemplateVal('source_currency_2');
+  const targetCurrency = useTemplateVal('target_currency');
+
+  return <QuotesContent from1={from1} from2={from2} targetCurrency={targetCurrency} />;
 }
 
 export default Quotes;

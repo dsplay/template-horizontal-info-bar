@@ -1,13 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Parser from 'rss-parser';
 import axios from 'axios';
-import { tval } from '@dsplay/template-utils';
+import { useTemplateVal } from '@dsplay/react-template-utils';
 import rssLogo from '../../assets/image/rss.png';
 import logger from '../../utils/logger';
 import './style.sass';
 
-const url = tval('rss_url');
-const logoBoxColor = tval('rss_logo_box_color');
 const parser = new Parser();
 const KEY_VERSION = 'news_version';
 const VERSION = '1.0';
@@ -45,13 +43,13 @@ const sizeMap = {
   200: 1.2,
 };
 
-function NewsContent() {
+function NewsContent({ url, logoBoxColor }) {
   const [count, setCount] = useState(0);
   const [result, setResult] = useState({});
   const [item, setItem] = useState({});
   const [error, setError] = useState();
 
-  const storageKey = `news-${url}`;
+  const storageKey = useMemo(() => `news-${url}`, [url]);
 
   useEffect(() => {
     const interval = setInterval(() => setCount((c) => c + 1), 1000 * 30);
@@ -96,7 +94,7 @@ function NewsContent() {
     }
 
     return () => clearInterval(interval);
-  }, [count, storageKey]);
+  }, [count, storageKey, url]);
 
   useEffect(() => {
     if (result && result.items && result.items.length > 0) {
@@ -137,9 +135,12 @@ function NewsContent() {
 }
 
 function News() {
+  const url = useTemplateVal('rss_url');
+  const logoBoxColor = useTemplateVal('rss_logo_box_color');
+
   if (!url) return null;
 
-  return <NewsContent />;
+  return <NewsContent url={url} logoBoxColor={logoBoxColor} />;
 }
 
 export default News;

@@ -1,19 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import moment from 'moment';
-import { tval } from '@dsplay/template-utils';
+import { useTemplateVal } from '@dsplay/react-template-utils';
 import logger from '../../utils/logger';
 import './style.sass';
 
-const lat = tval('latitude');
-const lon = tval('longitude');
-const url = `https://api.dsplay.tv/weather/current?lat=${lat}&lon=${lon}`;
-const storageKey = `tv.dsplay.info-bar.weather-(${lat},${lon})`;
 const KEY_VERSION = 'weather_version';
 const VERSION = '1.1';
 
-function WeatherContent() {
+function WeatherContent({ lat, lon }) {
   const [result, setResult] = useState();
+
+  const url = useMemo(() => `https://api.dsplay.tv/weather/current?lat=${lat}&lon=${lon}`, [lat, lon]);
+  const storageKey = useMemo(() => `tv.dsplay.info-bar.weather-(${lat},${lon})`, [lat, lon]);
 
   useEffect(() => {
     let weather;
@@ -51,7 +50,7 @@ function WeatherContent() {
       logger.log('[weather] using value from localStorage');
       setResult(weather.value);
     }
-  }, []);
+  }, [url, storageKey]);
 
   if (result) {
     const {
@@ -77,11 +76,14 @@ function WeatherContent() {
 }
 
 function Weather() {
+  const lat = useTemplateVal('latitude');
+  const lon = useTemplateVal('longitude');
+
   if (!lat || !lon) {
     return null;
   }
 
-  return <WeatherContent />;
+  return <WeatherContent lat={lat} lon={lon} />;
 }
 
 export default Weather;

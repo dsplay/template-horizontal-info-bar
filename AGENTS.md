@@ -80,6 +80,14 @@ This template renders no static, developer-authored UI text at all — every wid
 
 Regular npm dependencies, not vendored files — `npm outdated` / `npm update` for in-range bumps. For an out-of-range (typically major) bump, apply it deliberately and verify `npm start`, `npm run build`, and `npm test` still work before committing.
 
+### `vite-plugin-node-polyfills` is load-bearing for the News widget
+
+`rss-parser` (used by `src/components/news/index.jsx`) extends Node's `EventEmitter` and is instantiated at module scope (`const parser = new Parser();`). Vite doesn't polyfill Node builtins the way CRA's webpack config did — by default it externalizes `events`/`stream`/`timers` to browser-incompatible stubs, so `new Parser()` throws `this.removeAllListeners is not a function` at *import* time, crashing the entire app (not just the News widget) before anything renders. `vite.config.js` polyfills exactly `events`/`stream`/`timers` via `vite-plugin-node-polyfills` to fix this — don't remove it without replacing `rss-parser` with something that doesn't need it. This does noticeably grow the bundle (~2x); `parser.parseURL()` (unlike `parseString()`, which is all this template uses) also touches `http`/`https`, which aren't polyfilled — add them to the `include` list first if that method ever gets used.
+
+### Pre-existing bug, out of scope: `vertsical` typo in the Quotes widget
+
+`src/components/quotes/index.jsx` wraps each currency pair in `<div className="block vertsical">` — a typo of `vertical` that predates this migration (confirmed against the commit right before it). No `.vertical`/`.vertsical` CSS rule has matched this in a long time, so each currency's ID and value render side by side instead of stacked. Left as-is per this migration's scope (structural/tooling only, not behavior fixes for pre-existing bugs) — fix `vertsical` → `vertical` and add a `.vertical { flex-direction: column }` rule if this is ever revisited.
+
 ### Known pending bump: ESLint 9 -> 10
 
 `eslint`/`@eslint/js` are pinned to `^9.39.5` (latest is `10.x`). Bumping them currently fails on peer dependency conflicts: `eslint-plugin-import`, `eslint-plugin-jsx-a11y`, and `eslint-plugin-react` haven't declared ESLint 10 support yet as of 2026-08-12 — they're still the actively-maintained canonical packages, not abandoned or superseded, just lagging behind the major. `eslint-plugin-react-hooks` already supports it. `eslint-plugin-unicorn` is pinned to `65.0.1` for the same reason (`66.0.0+` requires ESLint `>=10.4`). Don't force this with `--legacy-peer-deps` — re-check peer ranges periodically and bump all of them together once the laggards catch up.

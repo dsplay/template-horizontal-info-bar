@@ -2,12 +2,19 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import legacy from '@vitejs/plugin-legacy';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import pkg from './package.json' with { type: 'json' };
 import templateManifest from '@dsplay/template-manifest/vite-plugin';
 
 export default defineConfig({
   base: './',
   plugins: [
+    // rss-parser extends Node's EventEmitter (via events/stream/timers) - Vite only
+    // externalizes those to browser-incompatible stubs by default, crashing at
+    // `new Parser()`. This aliases them to real browser-compatible shims instead.
+    nodePolyfills({
+      include: ['events', 'stream', 'timers'],
+    }),
     react(),
     legacy({
       targets: pkg.browserslist,

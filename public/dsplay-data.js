@@ -19,7 +19,7 @@ var dsplay_template = {
   // rss_url: 'http://rss.home.uol.com.br/index.xml',
 
   // sponsor config
-  sponsor_logo: 'https://cdn0.capterra-static.com/logos/150/2105153-1566335117.png',
+  sponsor_logo: 'https://developers.dsplay.tv/assets/images/dsplay-logo.png',
 
   // weather config
   // latitude: '38.7159817',

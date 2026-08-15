@@ -10,9 +10,6 @@ var dsplay_template = {
   source_currency_1: 'BRL',
   source_currency_2: 'BTC',
   target_currency: 'EUR',
-  currency_api_key: '305dc77b8ca4ceed39e7',
-  // currency_api_key: 'e6d22a41b6f91ecfc327',
-  // currency_api_key: '23127abe87e0fd310043',
 
   // widgets_sequence_query: 's,c#c%n',
 
@@ -26,9 +23,6 @@ var dsplay_template = {
   sponsor_logo: 'https://cdn0.capterra-static.com/logos/150/2105153-1566335117.png',
 
   // weather config
-  weatherbit_api_key: '0559fac74ef14c2dbd093ee518ba909a',
-  // weatherbit_api_key: '4469ae6be8354c7d869296286bf1b04c',
-  
   // latitude: '38.7159817',
   // longitude: '-9.2261812',
   latitude: '-8.0421584',

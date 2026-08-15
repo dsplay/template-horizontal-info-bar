@@ -85,6 +85,14 @@ Regular npm dependencies, not vendored files — `npm outdated` / `npm update` f
 
 `rss-parser` (used by `src/components/news/index.jsx`) extends Node's `EventEmitter` and is instantiated at module scope (`const parser = new Parser();`). Vite doesn't polyfill Node builtins the way CRA's webpack config did — by default it externalizes `events`/`stream`/`timers` to browser-incompatible stubs, so `new Parser()` throws `this.removeAllListeners is not a function` at *import* time, crashing the entire app (not just the News widget) before anything renders. `vite.config.js` polyfills exactly `events`/`stream`/`timers` via `vite-plugin-node-polyfills` to fix this — don't remove it without replacing `rss-parser` with something that doesn't need it. This does noticeably grow the bundle (~2x); `parser.parseURL()` (unlike `parseString()`, which is all this template uses) also touches `http`/`https`, which aren't polyfilled — add them to the `include` list first if that method ever gets used.
 
+### Known accepted: Dependabot flags `elliptic` (low severity) via `vite-plugin-node-polyfills` — not reachable, no fix exists yet
+
+`elliptic@6.6.1` (GHSA-848j-6mx2-7j84 / CVE-2025-14505, an ECDSA signature flaw) comes in transitively through `vite-plugin-node-polyfills` → `node-stdlib-browser` → `crypto-browserify` → `browserify-sign`/`create-ecdh` (`npm why elliptic` confirms this chain). Two things make this a non-issue in practice right now:
+- `vite.config.js`'s `nodePolyfills({ include: [...] })` only includes `events`/`stream`/`timers` (see the section above) — `crypto` is never in that list, so `crypto-browserify`/`elliptic`'s actual code never gets bundled or executed; it just sits in `node_modules` as part of `node-stdlib-browser`'s full dependency graph. Confirmed via `grep -rn "crypto\|elliptic" src` — zero hits.
+- `6.6.1` is already the latest published `elliptic` release, and the advisory itself lists `first_patched_version: null` — there is currently nothing to bump to.
+
+Don't try to silence this with a forced `overrides` pin (there's no fixed version to pin to) or by ripping out `vite-plugin-node-polyfills` (it's load-bearing for the News widget, see above). Just re-check `npm view elliptic version` occasionally — once a patched release exists, `npm update` should pick it up through the normal transitive chain.
+
 ### Fixed: `vertsical` typo in the Quotes widget
 
 `src/components/quotes/index.jsx` used to wrap each currency pair in `<div className="block vertsical">` — a typo of `vertical` that predated this migration (confirmed against the commit right before it) and meant no CSS ever matched it, so each currency's ID and value rendered side by side instead of stacked. Fixed to `vertical`, with a matching `.vertical { flex-direction: column }` rule restored in `src/style.sass`.

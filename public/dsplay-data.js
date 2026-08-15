@@ -38,7 +38,7 @@ var dsplay_template = {
   // sponsor_logo_box_color: 'white',
 };
 
-var config = {
+var dsplay_config = {
   // config parameters
   locale: 'pt_br',
   orientation: 'landscape',

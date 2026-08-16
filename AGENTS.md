@@ -40,7 +40,7 @@ build.sh                    <-- zips the Vite build output into template.zip
 
 ## Package identity
 
-`package.json`'s `"name"` must identify this template, not the boilerplate it was cloned from — see `template-boilerplate-react`'s AGENTS.md for the full convention. This template's is `dsplay-template-horizontal-info-bar` (previously `@dsplay/template-horizontal-bar`, which didn't even match the repo's own name).
+`package.json`'s `"name"` must identify this template, not the boilerplate it was cloned from — see [`template-boilerplate-react`](https://github.com/dsplay/template-boilerplate-react)'s AGENTS.md for the full convention. This template's is `dsplay-template-horizontal-info-bar` (previously `@dsplay/template-horizontal-bar`, which didn't even match the repo's own name).
 
 ## README structure
 
@@ -61,7 +61,7 @@ This template renders no static, developer-authored UI text at all — every wid
 ## Runtime model
 
 - `public/dsplay-data.js` defines `dsplay_config`/`dsplay_media`/`dsplay_template` mock globals used only in **development**. `build.sh` blanks its content in the production build — the DSPLAY Android app injects the real `window.DSPLAY.getData()` before any script runs.
-- This template reads `dsplay_template`/`config` values via `@dsplay/react-template-utils`'s hooks (`useTemplateVal`/`useTemplateBoolVal`/`useConfig`), called inside each component's function body — matching every other migrated template. It used to read `@dsplay/template-utils`'s `tval`/`tbval`/`config` directly at module scope instead; that was a deliberate "don't fix what isn't broken" call made during the initial 2026 migration, later reversed at the maintainer's request. `@dsplay/template-utils` is no longer a direct dependency (still pulled in transitively via `@dsplay/react-template-utils`).
+- This template reads `dsplay_template`/`config` values via [`@dsplay/react-template-utils`](https://github.com/dsplay/react-template-utils)'s hooks (`useTemplateVal`/`useTemplateBoolVal`/`useConfig`), called inside each component's function body — matching every other migrated template. It used to read [`@dsplay/template-utils`](https://github.com/dsplay/template-utils)'s `tval`/`tbval`/`config` directly at module scope instead; that was a deliberate "don't fix what isn't broken" call made during the initial 2026 migration, later reversed at the maintainer's request. `@dsplay/template-utils` is no longer a direct dependency (still pulled in transitively via `@dsplay/react-template-utils`).
 - Each widget independently fetches its own data (weather via DSPLAY's own API, currency quotes via a free public API, RSS via a CORS proxy) and caches the result in `localStorage` with its own TTL/version key, refreshing on its own interval. `src/utils/logger.js` gates the diagnostic `console.log`/`console.error` calls so they're silent in production builds but still visible when debugging a dev build via remote WebView inspection.
 - Each widget is independently optional — `src/components/app/index.jsx` only renders the ones whose required variable(s) are set (e.g. `Weather` renders nothing without both `latitude`/`longitude`).
 

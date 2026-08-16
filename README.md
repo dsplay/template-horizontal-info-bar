@@ -16,7 +16,13 @@ A [React](https://reactjs.org/) [HTML-based template](https://developers.dsplay.
 
 Every widget is independently optional — it only renders once its required variable(s) are set. `widgets_sequence_query` controls which widgets appear and in what order.
 
-![Screenshot](assets/screenshot-01.png)
+## Supported screen formats
+
+This template was built exclusively for the horizontal banner format — the widgets are laid out in a single thin row, and other aspect ratios leave most of the screen empty or push widgets off-screen.
+
+| Horizontal banner |
+|--------------------|
+| ![Horizontal Banner](docs/screenshots/h-banner.png) |
 
 ## Template variables
 

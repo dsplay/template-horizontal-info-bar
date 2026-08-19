@@ -46,6 +46,7 @@ This template was built exclusively for the horizontal banner format — the wid
 | `currency_text_color`   | color   | Text color of each currency value.                                                               |
 
 > Remember to also register these as Template Vars (same name and type) when configuring this template in the DSPLAY CMS.
+> New variable names should use `snake_case` (e.g. `background_color`, not `backgroundColor`) — the DSPLAY CMS Manager auto-generates each variable's label from its key, and snake_case reads more naturally there.
 
 ### Widget sequence syntax
 

@@ -1,37 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
-import Parser from 'rss-parser';
 import axios from 'axios';
 import { useTemplateVal } from '@dsplay/react-template-utils';
 import rssLogo from '../../assets/image/rss.png';
 import logger from '../../utils/logger';
 import './style.sass';
 
-const parser = new Parser();
 const KEY_VERSION = 'news_version';
-const VERSION = '1.0';
-
-// Free CORS proxies are individually unreliable (rate limits, outages, plan
-// restrictions) - try each in turn instead of depending on a single one.
-const CORS_PROXIES = [
-  (feedUrl) => axios.get('https://api.allorigins.win/get', { params: { url: feedUrl } }).then((res) => res.data.contents),
-  (feedUrl) => axios.get('https://api.codetabs.com/v1/proxy', { params: { quest: feedUrl } }).then((res) => res.data),
-  (feedUrl) => axios.get('https://corsproxy.io/', { params: { url: feedUrl } }).then((res) => res.data),
-];
-
-async function fetchFeedXml(feedUrl) {
-  let lastError;
-
-  for (const tryProxy of CORS_PROXIES) {
-    try {
-      // eslint-disable-next-line no-await-in-loop -- fallbacks must be tried sequentially, not in parallel
-      return await tryProxy(feedUrl);
-    } catch (e) {
-      lastError = e;
-    }
-  }
-
-  throw lastError;
-}
+const VERSION = '2.0';
 
 const sizeMap = {
   20: 3,
@@ -72,8 +47,8 @@ function NewsContent({ url, logoBoxColor }) {
         (async () => {
           try {
             logger.log('[news] fetching from the API');
-            const xml = await fetchFeedXml(url);
-            const feed = await parser.parseString(xml);
+            const response = await axios.get('https://api.dsplay.tv/rss/last-news', { params: { url } });
+            const feed = response.data.data;
 
             setResult(feed);
 
@@ -117,11 +92,7 @@ function NewsContent({ url, logoBoxColor }) {
       }
     }
 
-    const {
-      image: {
-        url: channelImageUrl = rssLogo,
-      } = {},
-    } = result;
+    const channelImageUrl = result.logo || rssLogo;
 
     return (
       <div className="block news">

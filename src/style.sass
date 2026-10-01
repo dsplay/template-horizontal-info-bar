@@ -13,6 +13,7 @@ body
 
 #root
   display: flex
+  align-items: center
   width: 100%
   height: 100%
   overflow: hidden
@@ -26,6 +27,10 @@ body
 .vertical
   flex-direction: column
 
-@media screen and (orientation: portrait)
+// Same aspect-ratio-based boundary as `.App`'s layout switch (see app/style.sass) — a square must
+// land on the same side as landscape here too, or text would scale by height while the bar itself
+// renders as a row, an inconsistent combination. Plain Level 3 max-aspect-ratio for old-WebView
+// compatibility, same reasoning as app/style.sass.
+@media screen and (max-aspect-ratio: 9999/10000)
   html
     font-size: 2vh

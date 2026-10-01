@@ -18,11 +18,11 @@ Every widget is independently optional — it only renders once its required var
 
 ## Supported screen formats
 
-This template was built exclusively for the horizontal banner format — the widgets are laid out in a single thin row, and other aspect ratios leave most of the screen empty or push widgets off-screen.
+The widgets are always laid out in a single thin horizontal row. If the container itself is already a thin banner, the bar simply fills it. If the container is landscape or square instead — e.g. the template set to fill the whole screen — the bar caps its own height proportionally to the screen's width and centers itself, rather than stretching its background across the full height. Portrait containers aren't a good fit: the widgets aren't designed to re-lay out vertically.
 
-| Horizontal banner |
-|--------------------|
-| ![Horizontal Banner](docs/screenshots/h-banner.png) |
+| Horizontal banner | Landscape (full screen) | Square (full screen) |
+|---------------------|----------------------------|-------------------------|
+| ![Horizontal Banner](docs/screenshots/h-banner.png) | ![Landscape](docs/screenshots/landscape.png) | ![Square](docs/screenshots/square.png) |
 
 ## Template variables
 

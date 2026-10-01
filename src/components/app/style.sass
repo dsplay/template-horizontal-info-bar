@@ -2,6 +2,22 @@
   width: 100%
   height: 100%
 
-@media screen and (orientation: portrait)
+// Caps the bar's own height (where bg_color/bg_image are painted) to a thin, width-proportional
+// strip — without this, a container taller than it is wide (16:9 landscape at full screen height,
+// or a square) stretches the bar's background across the whole height instead of keeping the
+// horizontal-banner look the template is designed for. Strictly-portrait containers are excluded:
+// there the bar already reflows into a full-height vertical column below, which this cap would
+// otherwise clip down to a sliver. Keyed on `aspect-ratio`, not `orientation`: the CSS spec defines
+// `orientation: portrait` as height >= width, which would misclassify an exact square as portrait —
+// `min-aspect-ratio: 1/1` (width >= height) correctly puts a square on the horizontal-bar side.
+// Plain Level 3 min-/max-aspect-ratio on purpose (no Level 4 `not (...)` combinator) — this must
+// keep working on the old-Android WebView engines `package.json`'s browserslist targets.
+@media screen and (min-aspect-ratio: 1/1)
+  .App
+    max-height: 15vw
+
+// Just under 1/1, not max-aspect-ratio: 1/1 — an exact square must only match the row+cap query
+// above, never both.
+@media screen and (max-aspect-ratio: 9999/10000)
   .App
     flex-direction: column

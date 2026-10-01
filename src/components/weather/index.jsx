@@ -8,7 +8,7 @@ import './style.sass';
 const KEY_VERSION = 'weather_version';
 const VERSION = '1.1';
 
-function WeatherContent({ lat, lon }) {
+function WeatherContent({ lat, lon, unit }) {
   const [result, setResult] = useState();
 
   const url = useMemo(() => `https://api.dsplay.tv/weather/current?lat=${lat}&lon=${lon}`, [lat, lon]);
@@ -64,9 +64,12 @@ function WeatherContent({ lat, lon }) {
       },
     } = result;
 
+    const isFahrenheit = unit === 'Fahrenheit';
+    const displayTemp = isFahrenheit ? (temp * 9 / 5) + 32 : temp;
+
     return (
       <div className="block weather">
-        <span className="temp">{Math.round(temp)}º</span>
+        <span className="temp">{Math.round(displayTemp)}º{isFahrenheit ? 'F' : 'C'}</span>
         <img alt="" src={`https://www.weatherbit.io/static/img/icons/${icon}.png`} />
       </div>
     );
@@ -78,12 +81,13 @@ function WeatherContent({ lat, lon }) {
 function Weather() {
   const lat = useTemplateVal('latitude');
   const lon = useTemplateVal('longitude');
+  const unit = useTemplateVal('unit', 'Celsius');
 
   if (!lat || !lon) {
     return null;
   }
 
-  return <WeatherContent lat={lat} lon={lon} />;
+  return <WeatherContent lat={lat} lon={lon} unit={unit} />;
 }
 
 export default Weather;

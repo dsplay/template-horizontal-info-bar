@@ -31,6 +31,7 @@ This template was built exclusively for the horizontal banner format — the wid
 | `clock`                 | boolean | Enables/disables the Clock widget. Defaults to `true`.                                          |
 | `latitude`              | string  | Latitude of the place to get weather for, e.g. `41.1621376`. Weather widget is hidden if unset.  |
 | `longitude`             | string  | Longitude of the place to get weather for, e.g. `-8.656973`. Weather widget is hidden if unset.  |
+| `unit`                  | string  | Temperature unit shown in the Weather widget: `Celsius` or `Fahrenheit`. Defaults to `Celsius`.  |
 | `source_currency_1`     | string  | First source currency to convert, e.g. `BRL`, `USD`, `EUR`.                                     |
 | `source_currency_2`     | string  | Second source currency to convert.                                                               |
 | `target_currency`       | string  | Target currency both source currencies are converted to.                                        |

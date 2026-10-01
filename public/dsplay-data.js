@@ -26,6 +26,8 @@ var dsplay_template = {
   // longitude: '-9.2261812',
   latitude: '-8.0421584',
   longitude: '-35.0086754',
+  unit: 'Celsius',
+  // unit: 'Fahrenheit',
 
   // appearence config
   bg_image: 'https://upload.wikimedia.org/wikipedia/commons/4/48/Gradient_Abstract_Background.jpg',

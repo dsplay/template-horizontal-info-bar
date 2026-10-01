@@ -81,7 +81,7 @@ function WeatherContent({ lat, lon, unit }) {
 function Weather() {
   const lat = useTemplateVal('latitude');
   const lon = useTemplateVal('longitude');
-  const unit = useTemplateVal('unit', 'Celsius');
+  const unit = useTemplateVal('weather_unit', 'Celsius');
 
   if (!lat || !lon) {
     return null;

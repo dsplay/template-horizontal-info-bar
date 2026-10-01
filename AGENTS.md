@@ -26,7 +26,8 @@ src/
     quotes/                   <-- currency conversion between two source currencies and a target currency
     news/                     <-- one random headline from an RSS feed, refreshed periodically
     sponsor/                  <-- a single logo image
-build.sh                    <-- zips the Vite build output into template.zip
+scripts/
+  pack.mjs                   <-- zips the Vite build output into template.zip (Windows/macOS/Linux)
 ```
 
 ## File and folder naming
@@ -60,7 +61,7 @@ This template renders no static, developer-authored UI text at all — every wid
 
 ## Runtime model
 
-- `public/dsplay-data.js` defines `dsplay_config`/`dsplay_media`/`dsplay_template` mock globals used only in **development**. `build.sh` blanks its content in the production build — the DSPLAY Android app injects the real `window.DSPLAY.getData()` before any script runs.
+- `public/dsplay-data.js` defines `dsplay_config`/`dsplay_media`/`dsplay_template` mock globals used only in **development**. `scripts/pack.mjs` blanks its content in the production build — the DSPLAY Android app injects the real `window.DSPLAY.getData()` before any script runs.
 - This template reads `dsplay_template`/`config` values via [`@dsplay/react-template-utils`](https://github.com/dsplay/react-template-utils)'s hooks (`useTemplateVal`/`useTemplateBoolVal`/`useConfig`), called inside each component's function body — matching every other migrated template. It used to read [`@dsplay/template-utils`](https://github.com/dsplay/template-utils)'s `tval`/`tbval`/`config` directly at module scope instead; that was a deliberate "don't fix what isn't broken" call made during the initial 2026 migration, later reversed at the maintainer's request. `@dsplay/template-utils` is no longer a direct dependency (still pulled in transitively via `@dsplay/react-template-utils`).
 - **New `dsplay_template` variable keys should use `snake_case`** (e.g. `background_color`, not `backgroundColor`) — the DSPLAY CMS Manager auto-generates each variable's on-screen label from its key name, and snake_case reads more naturally there. This only applies to variables added from now on — never rename this template's existing keys just to match, since they're already registered/in use in production CMS configurations.
 - Each widget independently fetches its own data (weather via DSPLAY's own API, currency quotes via a free public API, RSS via DSPLAY's own rss-gateway) and caches the result in `localStorage` with its own TTL/version key, refreshing on its own interval. `src/utils/logger.js` gates the diagnostic `console.log`/`console.error` calls so they're silent in production builds but still visible when debugging a dev build via remote WebView inspection.
@@ -79,15 +80,17 @@ After touching either of these, verify by actually running `npm run build` and g
 
 ## Template variable manifest
 
-`vite.config.js` registers `@dsplay/template-manifest`'s Vite plugin, which on every build statically scans `src/` for `tval`/`useTemplateVal`-style reads and captures `public/dsplay-data.js` as example data, writing `template-variables.json` + `template-example-data.json` into the build output — and therefore into `template.zip` (`npm run zip` runs `build.sh`, which zips the whole build output). The DSPLAY CMS reads these two files to auto-detect a template's variables and seed default preview values, instead of requiring manual registration. See [@dsplay/template-manifest](https://www.npmjs.com/package/@dsplay/template-manifest) for exactly what it detects.
+`vite.config.js` registers `@dsplay/template-manifest`'s Vite plugin, which on every build statically scans `src/` for `tval`/`useTemplateVal`-style reads and captures `public/dsplay-data.js` as example data, writing `template-variables.json` + `template-example-data.json` into the build output — and therefore into `template.zip` (`npm run zip` runs `scripts/pack.mjs`, which zips the whole build output). The DSPLAY CMS reads these two files to auto-detect a template's variables and seed default preview values, instead of requiring manual registration. See [@dsplay/template-manifest](https://www.npmjs.com/package/@dsplay/template-manifest) for exactly what it detects.
 
 ## Commands
 
 - `npm start` — dev server (Vite).
-- `npm run build` — production build (runs the linter first via the `prebuild` script).
+- `npm run build` — lints, then builds for production.
 - `npm test` / `npm run test:watch` — Vitest.
 - `npm run linter` / `npm run linter:fix` — ESLint on `src`.
-- `npm run zip` — builds, then runs `build.sh` to produce `template.zip` ready for the [DSPLAY Web Manager](https://manager.dsplay.tv/template/create). `build/` and `template.zip` are gitignored.
+- `npm run zip` — builds, then runs `scripts/pack.mjs` to produce `template.zip` ready for the [DSPLAY Web Manager](https://manager.dsplay.tv/template/create). `build/` and `template.zip` are gitignored.
+
+`build`/`zip` chain their steps with `&&` directly in the script (`"build": "npm run linter && vite build"`, `"zip": "npm run build && ..."`) rather than `prebuild`/`prezip` lifecycle hooks — `.npmrc`'s `ignore-scripts=true` (see below) silently skips `pre*`/`post*` hooks for `npm run-script` too, not just install scripts, so a `prezip` step would never actually run and `npm run zip` would silently package a stale/missing `build/`. Confirmed live on 2026-10-01: both `prebuild` and `prezip` were being skipped this way. Keep new multi-step scripts explicit for the same reason — don't reach for `pre*`/`post*` naming in this repo.
 
 ## Supply chain hardening
 
@@ -120,6 +123,14 @@ The widget now calls `GET https://api.dsplay.tv/rss/last-news?url=<rss_url>` —
 ### Fixed: `public/dsplay-data.js` had two dead API keys (`currency_api_key`, `weatherbit_api_key`)
 
 Neither is read anywhere in `src/` (grepped every `useTemplateVal`/`useTemplateBoolVal` call) or present in the generated `template-variables.json` manifest — both widgets moved off the providers that needed them a while ago: Weather calls `api.dsplay.tv/weather/current` (a keyless DSPLAY-hosted proxy, see above), and Quotes calls the free/keyless `@fawazahmed0/currency-api` via jsdelivr. Removed the two live values and their commented-out alternates from the example data — they were unused leftovers that happened to look like real credentials sitting in a public example file. If a future provider swap ever needs an API key again, add it back deliberately alongside the code that actually reads it.
+
+### Fixed: `npm run zip` didn't work on Windows at all
+
+`build.sh` (bash + the system `zip` CLI) was the only thing `npm run zip` ran after building — neither ships on Windows, not even under Git Bash (Git for Windows doesn't bundle `zip`/`unzip`). Replaced with `scripts/pack.mjs`, a plain Node script (`fs` + the `archiver` devDependency, pinned to `8.0.0` — its from-scratch ESM rewrite, `import { ZipArchive } from 'archiver'; new ZipArchive()` instead of `7.x`'s `archiver('zip')` factory, but otherwise the same `directory()`/`file()`/`pipe()`/`finalize()` streaming API) that does the exact same thing (strip `build/test-assets`, write the `dsplay-data.js` placeholder, zip `build/`'s contents flat into `template.zip`) with no OS-specific tooling at all. `npm run zip` now works identically on Windows, macOS and Linux.
+
+### Fixed: editing `public/dsplay-data.js` didn't trigger a dev-server reload
+
+`index.html` loads it via a plain `<script src="/dsplay-data.js">`, not an ES module import — so it never entered Vite's module graph, and Vite's dev server only reloads/HMRs files it's tracking through that graph. Editing the mock data while `npm start` was running did nothing in the browser until a manual refresh. `vite.config.js`'s `watchDsplayData()` plugin now watches that one file directly (`server.watcher.add` + `handleHotUpdate`) and forces a full page reload on change — confirmed via a raw HMR-websocket connection that editing the file sends `{"type":"full-reload"}`.
 
 ### Known pending bump: ESLint 9 -> 10
 

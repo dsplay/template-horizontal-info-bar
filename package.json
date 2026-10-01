@@ -15,15 +15,13 @@
   },
   "scripts": {
     "start": "vite",
-    "prebuild": "npm run linter",
-    "build": "vite build",
+    "build": "npm run linter && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
     "linter": "eslint src",
     "linter:fix": "eslint src --fix",
-    "prezip": "npm run build",
-    "zip": "rm -rf build/test-assets && ./build.sh"
+    "zip": "npm run build && node scripts/pack.mjs"
   },
   "browserslist": [
     ">0.2%",
@@ -40,6 +38,7 @@
     "@testing-library/react": "16.3.2",
     "@vitejs/plugin-legacy": "8.2.3",
     "@vitejs/plugin-react": "6.0.5",
+    "archiver": "8.0.0",
     "eslint": "9.39.5",
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-jsx-a11y": "6.10.2",
